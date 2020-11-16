@@ -1,6 +1,6 @@
 from datetime import timedelta
 from redis import StrictRedis
-
+from datetime import timedelta
 class Config(object):
     #flask应用程序调试
     DEBUG = True

@@ -3,7 +3,6 @@ from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
 from redis import StrictRedis
 from flask_session import Session
-from datetime import timedelta
 from flask_wtf.csrf import CSRFProtect
 from config import Config
 
