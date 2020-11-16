@@ -8,6 +8,7 @@ from datetime import timedelta
 app = Flask(__name__)
 #创建配置型系类
 class Config(object):
+    #flask应用程序调试
     DEBUG = True
     #session加密配置
     SECRET_KEY = 'JALSJDFLKAJSLK'
