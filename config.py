@@ -30,7 +30,7 @@ class TestConfig(Config):
 
 #给外界提供一个统一的访问接口
 config_dict={
-    'develop':'DevelopConfig',
-    'product':'ProductConfig',
-    'test':'TestConfig'
+    'develop':DevelopConfig,
+    'product':ProductConfig,
+    'test':TestConfig
 }
