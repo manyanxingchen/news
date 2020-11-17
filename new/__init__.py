@@ -11,11 +11,12 @@ from logging.handlers import RotatingFileHandler
 redis_store = None
 #定义工厂方法
 def create_app(config_name):
-    #调用日志方法
-    log_file()
+
     app = Flask(__name__)
     #根据传入的配置类名称取出对应的类
     config = config_dict.get(config_name)
+    # 调用日志方法，并从config文件中传入相应的等级参数
+    log_file(config.LEVEL_NAME)
     #把配置信息加载到app中
     app.config.from_object(config)
     #创建数据库应用实例化程序
@@ -32,9 +33,9 @@ def create_app(config_name):
     from new.modules.index import index_blue
     app.register_blueprint(index_blue)
     return app
-def log_file():
+def log_file(LEVEL_NAME):
     #设置日志记录的等级   ERROR = 40 > WARNIG = 30 > INFO = 20 > DEBUG = 10
-    logging.basicConfig(level=logging.DEBUG)  #调试debug级 一旦设置该级别大于等于该级别的信息都会输出
+    logging.basicConfig(level=LEVEL_NAME)  #调试debug级 一旦设置该级别大于等于该级别的信息都会输出
     #创建日志记录器1，指明日志保存的路径、每个日志文件的最大大小、保存的日志文件个数上线
     file_log_handler = RotatingFileHandler("logs/log",maxBytes=1024*1024*100,backupCount=10,encoding='utf8')
     #创建日志记录的格式，日志等级 输入日志信息的文件名 行数 日志信息

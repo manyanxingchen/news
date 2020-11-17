@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from redis import StrictRedis
 from datetime import timedelta
@@ -17,13 +18,14 @@ class Config(object):
     SESSION_REDIS = StrictRedis(host=REDIS_HOST,port=REDIS_PORT)  #指定session存储的redis服务器
     SESSION_USE_SIGNER = True  #设置签名存储
     PERMANENT_SESSION_LIFETIME = timedelta(days=2)  #设置session有效期  秒使用seconds
+    LEVEL_NAME =logging.DEBUG
 #开发环境配置信息
 class DevelopConfig(Config):
     pass
 
 #生产（线上）环境配置信息
 class ProductConfig(Config):
-    DEBUG = False
+    LEVEL_NAME = logging.ERROR
 #测试环境配置信息
 class TestConfig(Config):
     pass
