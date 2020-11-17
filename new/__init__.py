@@ -6,7 +6,7 @@ from flask_wtf.csrf import CSRFProtect
 from config import config_dict
 
 
-#定义全局变量redis_store
+#定义redis_store
 redis_store = None
 #定义工厂方法
 def create_app(config_name):
@@ -18,6 +18,8 @@ def create_app(config_name):
     #创建数据库应用实例化程序
     db = SQLAlchemy(app)
     #创建redis实例化程序
+    #将局部变量redis_store声明为全局变量
+    global redis_store
     redis_store = StrictRedis(host=config.REDIS_HOST,port=config.REDIS_PORT,decode_responses=True)
     #创建session实例化程序，读取app中的session配置信息
     Session(app)
