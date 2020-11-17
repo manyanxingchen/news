@@ -4,7 +4,10 @@ from redis import StrictRedis
 from flask_session import Session
 from flask_wtf.csrf import CSRFProtect
 from config import config_dict
-from new.modules.index import index_blue
+
+
+#定义全局变量redis_store
+redis_store = None
 #定义工厂方法
 def create_app(config_name):
     app = Flask(__name__)
@@ -21,5 +24,6 @@ def create_app(config_name):
     #使用CSRFProtect保护app    ['POST', 'PUT', 'PATCH', 'DELETE']  保护这四种请求方式
     CSRFProtect(app)
     #注册蓝图
+    from new.modules.index import index_blue
     app.register_blueprint(index_blue)
     return app
