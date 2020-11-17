@@ -25,6 +25,7 @@ class DevelopConfig(Config):
 
 #生产（线上）环境配置信息
 class ProductConfig(Config):
+    DEBUG = False
     LEVEL_NAME = logging.ERROR
 #测试环境配置信息
 class TestConfig(Config):
