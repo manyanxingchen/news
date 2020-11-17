@@ -5,6 +5,12 @@ name = "pypi"
 
 [packages]
 flask = "*"
+redis = "*"
+pymysql = "*"
+flask-session = "*"
+flask-wtf = "*"
+flask-migrate = "*"
+flask-script = "*"
 
 [dev-packages]
 
