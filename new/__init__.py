@@ -33,10 +33,10 @@ def create_app(config_name):
     app.register_blueprint(index_blue)
     return app
 def log_file():
-    #设置日志记录的等级   ERROR = 40 WARNING = 30 WARN = WARNING INFO = 20 DEBUG = 10
-    logging.basicConfig(level=logging.DEBUG)  #调试debug级
+    #设置日志记录的等级   ERROR = 40 > WARNIG = 30 > INFO = 20 > DEBUG = 10
+    logging.basicConfig(level=logging.DEBUG)  #调试debug级 一旦设置该级别大于等于该级别的信息都会输出
     #创建日志记录器1，指明日志保存的路径、每个日志文件的最大大小、保存的日志文件个数上线
-    file_log_handler = RotatingFileHandler("logs/log",maxBytes=1024*1024*100,backupCount=10)
+    file_log_handler = RotatingFileHandler("logs/log",maxBytes=1024*1024*100,backupCount=10,encoding='utf8')
     #创建日志记录的格式，日志等级 输入日志信息的文件名 行数 日志信息
     formatter = logging.Formatter('%(levelname)s %(filename)s:%(lineno)d %(message)s')
     #为刚创建的日志记录器设置日志记录格式
