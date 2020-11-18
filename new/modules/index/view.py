@@ -24,3 +24,7 @@ def index():
     # current_app.logger.warning('输入警告信息2')
     # current_app.logger.error('输入错误信息2')
     return render_template('new1/index.html')
+#处理网站logo
+@index_blue.route('/favicon.ico')
+def get_web_logo():
+    return current_app.send_static_file('news/favicon.ico')
