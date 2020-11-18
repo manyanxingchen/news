@@ -34,6 +34,9 @@ def create_app(config_name):
     #注册蓝图
     from new.modules.index import index_blue
     app.register_blueprint(index_blue)
+    #注册图片验证码蓝图
+    from new.modules.passport import passport_blue
+    app.register_blueprint(passport_blue)
     return app
 def log_file(LEVEL_NAME):
     #设置日志记录的等级   ERROR = 40 > WARNIG = 30 > INFO = 20 > DEBUG = 10
