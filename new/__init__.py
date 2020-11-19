@@ -30,7 +30,7 @@ def create_app(config_name):
     #创建session实例化程序，读取app中的session配置信息
     Session(app)
     #使用CSRFProtect保护app    ['POST', 'PUT', 'PATCH', 'DELETE']  保护这四种请求方式
-    CSRFProtect(app)
+    # CSRFProtect(app)
     #注册蓝图
     from new.modules.index import index_blue
     app.register_blueprint(index_blue)
