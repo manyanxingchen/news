@@ -27,9 +27,10 @@ def register():
 
 #注册验证流程
 #1.获取前端传送参数
-    json_data = request.data
-    #将json数据转换为字典
-    dict_data = json.laods(json_data)
+    # json_data = request.data
+    # #将json数据转换为字典
+    # dict_data = json.laods(json_data)
+    dict_data = request.get_json()
     mobile = dict_data.get('mobile')
     sms_code = dict_data.get('sms_code')
     password = dict_data.get('password')
@@ -42,15 +43,15 @@ def register():
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno = RET.DATAERR,errmsg = 'redis短信验证码获取失败')
-#4.判断是否过期
+#4.判断短信验证码是否过期
     if not redis_sms_code:
-        return jsonify(errno = RET.NODATA,errmsg = '验证码已过期')
+        return jsonify(errno = RET.NODATA,errmsg = '短信验证码已过期')
 #5.判断验证码是否正确
     if redis_sms_code!=sms_code:
         return jsonify(errno = RET.DATAERR,errmsg = '验证码错误')
 #6.删除redis中的短信验证码
     try:
-        redis_store.delete('sms_code:%'%mobile)
+        redis_store.delete('sms_code:%s'%mobile)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno = RET.DBERR,errmsg = '删除短信验证码失败')
@@ -80,6 +81,7 @@ def sms_code():
     #上两行代码可以转换为
     #dict_data = request.json  #或者是
     dict_data = request.get_json()
+    print(222222)
     mobile = dict_data.get('mobile')
     image_code = dict_data.get('image_code')
     image_code_id = dict_data.get('image_code_id')
@@ -87,7 +89,7 @@ def sms_code():
     if not all([mobile,image_code,image_code_id]):
         return jsonify(errno = RET.PARAMERR ,errmsg='参数为空')
     #3.检验手机格式
-    if  not re.match('1[3-9]\d{9}',mobile):
+    if not re.match('1[3-9]\d{9}',mobile):
         return jsonify(errno = RET.DATAERR,errmsg = '电话号码格式错误')
     #4.依据图片验证码编号获取图片验证码
     try:
@@ -106,15 +108,15 @@ def sms_code():
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno = RET.DBERR,errmsg = '删除redis失败')
-    #8.生成一个短信验证码，调用cpp
+    #8.生成一个短信验证码，调用ccp
     sms_code = '%06d'%random.randint(0,999999)
     ccp = CCP()
-    result =  ccp.send_template_sms(mobile,[sms_code,constants.SMS_CODE_REDIS_EXPIRES/5],1)
+    result =  ccp.send_template_sms(mobile,[sms_code,constants.SMS_CODE_REDIS_EXPIRES/60],1)
     if result == -1:
         return jsonify(errno = RET.DATAERR,errmsg = '短信发送失败')
     #9.将短信验证码保存到redis中
     try:
-        redis_store.set('sms_code%s'%mobile,sms_code,constants.SMS_CODE_REDIS_EXPIRES)
+        redis_store.set('sms_code:%s'%mobile,sms_code,constants.SMS_CODE_REDIS_EXPIRES)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno = RET.DBERR,errmsg = '短信验证码存储失败')
