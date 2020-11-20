@@ -1,7 +1,7 @@
 #导入蓝图
 import random
 
-from flask import request, current_app, make_response, jsonify
+from flask import request, current_app, make_response, jsonify, session
 from new import redis_store, constants, db
 from new.models import User
 from new.modules.passport import passport_blue
@@ -16,6 +16,39 @@ from new.utils.response_code import RET
 # 请求方式  post
 # 请求参数  电话号码   图片验证码   随机编码
 # 返回值  errno errmsg
+
+#登录验证
+#创建蓝图视图函数
+# 获取注册信息
+# 请求路径  passport/login
+# 请求方式  post
+# 请求参数  电话号码    密码
+# 返回值  errno errmsg
+@passport_blue.route('/login',methods=['POST'])
+def login():
+
+#1.获取参数
+    mobile = request.json.get('mobile')
+    password = request.json.get('password')
+#2.判断参数是否为空
+    if not all([mobile,password]):
+        return jsonify(errno = RET.NODATA,errmsg = '参数为空')
+#3.依据手机号在数据库中查询
+    try:
+        user = User.query.filter(User.mobile ==mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '获取用户失败')
+#4.判断用户是否存在
+    if not user:
+        return jsonify(errno = RET.NODATA,errmsg = '该用户还未注册')
+#5.判断密码是否正确
+    if not user.check_password(password):
+        return jsonify(errno = RET.PARAMERR,errmsg = '密码错误')
+#6.将用户信息存放到session中
+    session['user_id'] = user.id
+#7.返回信息
+    return jsonify(errno = RET.OK,errmsg = '登陆成功')
 @passport_blue.route('/register',methods=['POST'])
 def register():
 #创建蓝图视图函数
@@ -24,7 +57,6 @@ def register():
 # 请求方式  post
 # 请求参数  电话号码   短信验证码   密码
 # 返回值  errno errmsg
-
 #注册验证流程
 #1.获取前端传送参数
     # json_data = request.data
@@ -143,7 +175,6 @@ def sms_code():
     #     return jsonify(errno = 30000,errmsg = '短信发送失败')
     # #返回发送的状态
     # return jsonify(errno = 40000,errmsg = '短信发送成功')
-    return
 #定义验证图片试图函数
 @passport_blue.route('/image_code')
 def image_code():
