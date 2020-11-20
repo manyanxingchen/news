@@ -75,8 +75,11 @@ def register():
 @passport_blue.route('/sms_code',methods=['POST'])
 def sms_code():
     #1.获取参数
-    json_data = request.data
-    dict_data = json.loads(json_data)
+    # json_data = request.data
+    # dict_data = json.loads(json_data)
+    #上两行代码可以转换为
+    #dict_data = request.json  #或者是
+    dict_data = request.get_json()
     mobile = dict_data.get('mobile')
     image_code = dict_data.get('image_code')
     image_code_id = dict_data.get('image_code_id')
