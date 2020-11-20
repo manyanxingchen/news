@@ -2,7 +2,8 @@
 import random
 
 from flask import request, current_app, make_response, jsonify
-from new import redis_store, constants
+from new import redis_store, constants, db
+from new.models import User
 from new.modules.passport import passport_blue
 import json
 import re
@@ -15,8 +16,61 @@ from new.utils.response_code import RET
 # 请求方式  post
 # 请求参数  电话号码   图片验证码   随机编码
 # 返回值  errno errmsg
+@passport_blue.route('/register',methods=['POST'])
+def register():
+#创建蓝图视图函数
+# 获取注册信息
+# 请求路径  passport/register
+# 请求方式  post
+# 请求参数  电话号码   短信验证码   密码
+# 返回值  errno errmsg
 
+#注册验证流程
+#1.获取前端传送参数
+    json_data = request.data
+    #将json数据转换为字典
+    dict_data = json.laods(json_data)
+    mobile = dict_data.get('mobile')
+    sms_code = dict_data.get('sms_code')
+    password = dict_data.get('password')
+#2.校验参数是否为空
+    if not all([mobile,sms_code,password]):
+        return jsonify(errno = RET.PARAMERR,errmsg = '参数为空')
+#3.取出redis短信验证码
+    try:
+        redis_sms_code = redis_store.get('sms_code:%s'%mobile)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DATAERR,errmsg = 'redis短信验证码获取失败')
+#4.判断是否过期
+    if not redis_sms_code:
+        return jsonify(errno = RET.NODATA,errmsg = '验证码已过期')
+#5.判断验证码是否正确
+    if redis_sms_code!=sms_code:
+        return jsonify(errno = RET.DATAERR,errmsg = '验证码错误')
+#6.删除redis中的短信验证码
+    try:
+        redis_store.delete('sms_code:%'%mobile)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '删除短信验证码失败')
+#7.创建用户
+    user = User()
 
+#8.设置用户对象属性
+    user.nick_name = mobile
+    user.password_hash = password
+    user.mobile = mobile
+    user.signature = '这个用户很懒，没有签名'
+#9.保存用户到数据库
+    try:
+        db.session.add(user)
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '用户注册失败')
+#10.返回注册成功
+    return jsonify(errno =RET.OK,errmsg = '注册成功')
 
 @passport_blue.route('/sms_code',methods=['POST'])
 def sms_code():
@@ -41,7 +95,7 @@ def sms_code():
     if not redis_image_code:
         return jsonify(errno = RET.NODATA,errmsg = '图片验证码已过期')
     #6.校验图片验证码
-    if image_code !=redis_image_code:
+    if image_code.upper() !=redis_image_code.upper():
         return jsonify(errno = RET.DATAERR,errmsg = '图片验证码错误')
     #7.删除redis中的图片验证码
     try:
