@@ -59,7 +59,7 @@ def register():
 
 #8.设置用户对象属性
     user.nick_name = mobile
-    user.password_hash = password
+    user.password= password
     user.mobile = mobile
     user.signature = '这个用户很懒，没有签名'
 #9.保存用户到数据库

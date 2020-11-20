@@ -12,4 +12,4 @@ Migrate(app,db)
 manager.add_command('db',MigrateCommand)
 #运行程序
 if __name__ =='__main__':
-    app.run()
+    manager.run()
