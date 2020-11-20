@@ -11,12 +11,12 @@ from new.libs.yuntongxun.sms import CCP
 from new.utils.captcha.captcha import captcha
 from new.utils.response_code import RET
 #创建蓝图视图函数
-# 获取短信验证码
-# 请求路径  passport/sms_code
-# 请求方式  post
-# 请求参数  电话号码   图片验证码   随机编码
-# 返回值  errno errmsg
-
+@passport_blue.route('/logout',methods=['POST'])
+def logout():
+    #1.清空session
+    session.pop('user_id',None)
+    #2.返回响应
+    return jsonify(errno = RET.OK,errmsg = '退出成功')
 #登录验证
 #创建蓝图视图函数
 # 获取注册信息
@@ -104,7 +104,11 @@ def register():
         return jsonify(errno = RET.DBERR,errmsg = '用户注册失败')
 #10.返回注册成功
     return jsonify(errno =RET.OK,errmsg = '注册成功')
-
+# 获取短信验证码
+# 请求路径  passport/sms_code
+# 请求方式  post
+# 请求参数  电话号码   图片验证码   随机编码
+# 返回值  errno errmsg
 @passport_blue.route('/sms_code',methods=['POST'])
 def sms_code():
     #1.获取参数
