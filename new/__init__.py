@@ -8,6 +8,8 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 #定义redis_store
+from new.utils.commons import hot_news_filter
+
 redis_store = None
 #定义数据库变量
 db = SQLAlchemy()
@@ -43,6 +45,8 @@ def create_app(config_name):
         csrf_token  = generate_csrf()
         resp.set_cookie('csrf_token',csrf_token)
         return resp
+    #强自定义的过滤器加载到系统默认的过滤器中
+    app.add_template_filter(hot_news_filter,'my_filter')
     return app
 def log_file(LEVEL_NAME):
     #设置日志记录的等级   ERROR = 40 > WARNIG = 30 > INFO = 20 > DEBUG = 10
