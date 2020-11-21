@@ -5,13 +5,25 @@ import logging
 from flask import current_app, render_template, session, jsonify
 
 #定义蓝图路由
-from ...models import User, News
+from ...models import User, News, Category
 from ...utils.response_code import RET
 
 
 @index_blue.route('/',methods=['GET','POST'])
 #定义视图函数
 def index():
+    #分类列表显示
+    #1.查询分类列表
+    try:
+        categories = Category.query.all()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '获取分类列表失败')
+    #将数据转换为列表数据
+    category_list = []
+    for category in categories:
+        category_list.append(category.to_dict())
+
     # 热门新闻显示
     # 1.查询10条热门新闻
     try:
@@ -37,7 +49,8 @@ def index():
     data = {
             #如果有值返回左边，否则返回右边
         'user_info':user.to_dict() if user else '',
-        'news_list':news_list
+        'news_list':news_list,
+        'category':category_list
     }
     return render_template('new1/index.html',user_data =data)
     # redis_store.set("name","zhangsan")
