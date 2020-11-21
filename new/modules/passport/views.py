@@ -50,10 +50,10 @@ def login():
     session['user_id'] = user.id
 #6.1记录用户最后登录时间
     user.last_login = datetime.now()
-    try:
-        db.session.commit()
-    except Exception as e:
-        current_app.logger.error(e)
+    # try:
+    #     db.session.commit()
+    # except Exception as e:
+    #     current_app.logger.error(e)
 #7.返回信息
     return jsonify(errno = RET.OK,errmsg = '登陆成功')
 @passport_blue.route('/register',methods=['POST'])
