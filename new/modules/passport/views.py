@@ -1,5 +1,6 @@
 #导入蓝图
 import random
+from datetime import datetime
 
 from flask import request, current_app, make_response, jsonify, session
 from new import redis_store, constants, db
@@ -47,6 +48,12 @@ def login():
         return jsonify(errno = RET.PARAMERR,errmsg = '密码错误')
 #6.将用户信息存放到session中
     session['user_id'] = user.id
+#6.1记录用户最后登录时间
+    user.last_login = datetime.now()
+    try:
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
 #7.返回信息
     return jsonify(errno = RET.OK,errmsg = '登陆成功')
 @passport_blue.route('/register',methods=['POST'])
