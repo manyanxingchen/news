@@ -5,13 +5,24 @@ import logging
 from flask import current_app, render_template, session, jsonify
 
 #定义蓝图路由
-from ...models import User
+from ...models import User, News
 from ...utils.response_code import RET
 
 
 @index_blue.route('/',methods=['GET','POST'])
 #定义视图函数
 def index():
+    # 热门新闻显示
+    # 1.查询10条热门新闻
+    try:
+        news = News.query.order_by(News.clicks.desc()).limit(10).all()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(error=RET.DBERR, errmsg='热门新闻查询失败')
+    # 将news新闻的格式转换为列表
+    news_list = []
+    for new in news:
+        news_list.append(new.to_dict())
     #1.获取到用户登录信息
     user_id = session.get('user_id')
     #2.依据用户id查询用户信息
@@ -21,10 +32,12 @@ def index():
             user = User.query.get(user_id)
         except Exception as e:
             current_app.logger.error(e)
+
     #3.拼接用户数据，渲染页面
     data = {
             #如果有值返回左边，否则返回右边
-        'user_info':user.to_dict() if user else ''
+        'user_info':user.to_dict() if user else '',
+        'news_list':news_list
     }
     return render_template('new1/index.html',user_data =data)
     # redis_store.set("name","zhangsan")

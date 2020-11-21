@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from redis import StrictRedis
 from flask_session import Session
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect,generate_csrf
 from config import config_dict
 import logging
 from logging.handlers import RotatingFileHandler
@@ -30,13 +30,19 @@ def create_app(config_name):
     #创建session实例化程序，读取app中的session配置信息
     Session(app)
     #使用CSRFProtect保护app    ['POST', 'PUT', 'PATCH', 'DELETE']  保护这四种请求方式
-    # CSRFProtect(app)
+    CSRFProtect(app)
     #注册蓝图
     from new.modules.index import index_blue
     app.register_blueprint(index_blue)
     #注册图片验证码蓝图
     from new.modules.passport import passport_blue
     app.register_blueprint(passport_blue)
+    #使用请求钩子拦截所有的请求
+    @app.after_request
+    def after_request(resp):
+        csrf_token  = generate_csrf()
+        resp.set_cookie('csrf_token',csrf_token)
+        return resp
     return app
 def log_file(LEVEL_NAME):
     #设置日志记录的等级   ERROR = 40 > WARNIG = 30 > INFO = 20 > DEBUG = 10
