@@ -97,9 +97,9 @@ def index():
             #如果有值返回左边，否则返回右边
         'user_info':user.to_dict() if user else '',
         'news_list':news_list,
-        'category':category_list
+        'category_list':category_list
     }
-    return render_template('new1/index.html',user_data =data)
+    return render_template('new1/index.html',data =data)
     # redis_store.set("name","zhangsan")
     # print(redis_store.get("name"))
     #测试session获取

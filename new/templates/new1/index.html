@@ -14,22 +14,22 @@
         <div class="header">
             <a href="#" class="logo fl"><img src="../../static/news/images/logo.png" alt="logo"></a>
             <ul class="menu fl">
-                {% for categrory in user_data.category %}
-                    <li class="{% if loop.index0 == 0 %}active"{% endif %} data-cid="{{ categrory.id }}"><a href="javascript:;">{{categrory.name}}</a></li>
+                {% for categrory in data.category_list %}
+                    <li class="{% if loop.index0 == 0 %}active{% endif %}" data-cid="{{ categrory.id }}"><a href="javascript:;">{{categrory.name}}</a></li>
                 {% endfor %}
-
+            </ul>
 {#                <li class="active" data-cid="1"><a href="javascript:;">最新</a></li>#}
 {#                <li data-cid="2"><a href="javascript:;">股市</a></li>#}
 {#                <li data-cid="3"><a href="javascript:;">债市</a></li>#}
 {#                <li data-cid="4"><a href="javascript:;">商品</a></li>#}
 {#                <li data-cid="5"><a href="javascript:;">外汇</a></li>#}
 {#                <li data-cid="6"><a href="javascript:;">公司</a></li>#}
-            </ul>
+
             <!-- 用户登录后显示下面，隐藏上面 -->
-            {% if user_data.user_info %}
+            {% if data.user_info %}
                 <div class="user_login fr">
                     <img src="../../static/news/images/person01.png" class="lgin_pic">
-                    <a href="#">{{user_data.user_info.nick_name}}</a>
+                    <a href="#">{{data.user_info.nick_name}}</a>
                     <a href="#" onclick="logout()">退出</a>
                 </div>
             {% else %}
@@ -94,7 +94,7 @@
                 <h3>点击排行</h3>
             </div>
             <ul class="rank_list">
-                {% for news in user_data.news_list %}
+                {% for news in data.news_list %}
                     <li><span class="{{loop.index | my_filter }}">{{ loop.index }}</span><a href="#">{{ news.title }}</a></li>
 {#                    {% if loop.index == 1 %}#}
 {#                        <li><span class="first">{{ loop.index }}</span><a href="#">{{ news.title }}</a></li>#}
