@@ -33,12 +33,15 @@ def create_app(config_name):
     Session(app)
     #使用CSRFProtect保护app    ['POST', 'PUT', 'PATCH', 'DELETE']  保护这四种请求方式
     CSRFProtect(app)
-    #注册蓝图
+    #注册首页蓝图
     from new.modules.index import index_blue
     app.register_blueprint(index_blue)
     #注册图片验证码蓝图
     from new.modules.passport import passport_blue
     app.register_blueprint(passport_blue)
+    #注册新闻验证码蓝图
+    from new.modules.news import news_blue
+    app.register_blueprint(news_blue)
     #使用请求钩子拦截所有的请求
     @app.after_request
     def after_request(resp):
@@ -47,6 +50,7 @@ def create_app(config_name):
         return resp
     #强自定义的过滤器加载到系统默认的过滤器中
     app.add_template_filter(hot_news_filter,'my_filter')
+    print(app.url_map)
     return app
 def log_file(LEVEL_NAME):
     #设置日志记录的等级   ERROR = 40 > WARNIG = 30 > INFO = 20 > DEBUG = 10
