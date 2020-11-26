@@ -42,6 +42,7 @@ def news_detail(news_id):
         'news_info':news.to_dict(),
         #返回用户数据
         'user_info':user.to_dict() if user else '',
+        #返回详情页热点新闻
         'news_list':click_news_list
     }
     return render_template('new1/detail.html',data = data)

@@ -2,10 +2,11 @@
 from sqlalchemy import text
 
 from . import index_blue  #点表示的是当前的路径下
-from flask import current_app, render_template, session, jsonify, request
+from flask import current_app, render_template, session, jsonify, request, g
 
 #定义蓝图路由
 from ...models import User, News, Category
+from ...utils.commons import user_login_data
 from ...utils.response_code import RET
 #首页分页显示新闻列表
 # 请求路径  /newlist
@@ -57,6 +58,7 @@ def newlist():
     #6.携带数据，返回响应
     return jsonify(errno = RET.OK,errmsg = '分页信息获取成功',totalPage=total_pages,currentPage=current_page,newsList=news_list)
 @index_blue.route('/',methods=['GET','POST'])
+@user_login_data
 #定义视图函数
 def index():
     #分类列表显示
@@ -82,20 +84,20 @@ def index():
     news_list = []
     for new in news:
         news_list.append(new.to_dict())
-    #1.获取到用户登录信息
-    user_id = session.get('user_id')
-    #2.依据用户id查询用户信息
-    user = None
-    if user_id:
-        try:
-            user = User.query.get(user_id)
-        except Exception as e:
-            current_app.logger.error(e)
+    # #1.获取到用户登录信息
+    # user_id = session.get('user_id')
+    # #2.依据用户id查询用户信息
+    # user = None
+    # if user_id:
+    #     try:
+    #         user = User.query.get(user_id)
+    #     except Exception as e:
+    #         current_app.logger.error(e)
 
     #3.拼接用户数据，渲染页面
     data = {
             #如果有值返回左边，否则返回右边
-        'user_info':user.to_dict() if user else '',
+        'user_info':g.user.to_dict() if g.user else '',    #调用返回后  g对象自动销毁
         'news_list':news_list,
         'category_list':category_list
     }
