@@ -94,12 +94,13 @@ def index():
     #     except Exception as e:
     #         current_app.logger.error(e)
 
-    #3.拼接用户数据，渲染页面
+            #3.拼接用户数据，渲染页面
     data = {
             #如果有值返回左边，否则返回右边
         'user_info':g.user.to_dict() if g.user else '',    #调用返回后  g对象自动销毁
         'news_list':news_list,
-        'category_list':category_list
+        'category_list':category_list,
+
     }
     return render_template('new1/index.html',data =data)
     # redis_store.set("name","zhangsan")
