@@ -2,9 +2,52 @@
 from flask import current_app, jsonify, abort, render_template, session, g, request
 
 from . import news_blue
-from ...models import News, User
+from ... import db
+from ...models import News, User, Comment
 from ...utils.commons import user_login_data
 from ...utils.response_code import RET
+#用户评论
+#1.请求路径：/news/comment
+#2.请求方式：post
+#3.请求参数  news_id  parent_id  user_id   content
+#4.返回值   errno errmsg 评论的字典需要在前端显示
+@news_blue.route('/news_comment',methods = ['POST'])
+@user_login_data
+def comment():
+    #1.判断用户是否登录
+    if not g.user:
+        return jsonify(errno = RET.NODATA,errmsg = '用户没有登录')
+    #2.获取参数
+    news_id = request.json.get('news_id')
+    content = request.json.get('comment')
+    parent_id = request.json.get('parent_id')
+    #3.参数为空校验
+    if not all([news_id,content]):
+        return jsonify(errno = RET.NODATA,errmsg = '评论请求数据获取失败')
+    #4.依据参数取出新闻，判断新闻是否存在
+    try:
+        news = News.query.get(news_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.NODATA,errmsg ='新闻获取失败')
+    if not news: return jsonify(errno = RET.NODATA,errmsg = '该新闻不存在')
+    #5.创建评论对象
+    comment = Comment()
+    #6.给评论对象赋值
+    comment.user_id = g.user.id
+    comment.news_id = news_id
+    comment.content = content
+    if parent_id:
+        comment.parent_id = parent_id
+    #7.保存到数据库
+    try:
+        db.session.add(comment)
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '新闻评论失败')
+    #8.返回响应
+    return jsonify(errno = RET.OK,errmsg = '评论成功',data = comment.to_dict())
 #用户收藏、取消收藏
 # 1.请求路径：/news/news_collect
 # 2.请求方式  post/get
