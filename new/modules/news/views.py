@@ -125,13 +125,23 @@ def news_detail(news_id):
     #     if news in g.user.collection_news:
     #         is_collected =True
     #将新闻转换为字典类型
+    #显示评论数据
+    #1.查询评论数据
+    try:
+        comments = Comment.query.filter(Comment.news_id == news_id).order_by(Comment.create_time.desc()).all()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '新闻评论数据获取失败')
+    comments_list= []
+    for comment in comments:
+        comments_list.append(comment.to_dict())
     data = {
         'news_info':news.to_dict(),
         #返回用户数据
         'user_info':g.user.to_dict() if g.user else '',
         #返回详情页热点新闻
         'news_list':click_news_list,
-
+        'comments':comments_list
     }
     return render_template('new1/detail.html',data = data)
 
