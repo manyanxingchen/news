@@ -42,6 +42,9 @@ def create_app(config_name):
     #注册新闻验证码蓝图
     from new.modules.news import news_blue
     app.register_blueprint(news_blue)
+    #用户信息显示蓝图
+    from new.modules.profile import profile_blue
+    app.register_blueprint(profile_blue)
     #使用请求钩子拦截所有的请求
     @app.after_request
     def after_request(resp):
