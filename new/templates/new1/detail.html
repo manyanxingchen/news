@@ -97,7 +97,13 @@
 {# 作者部分重写 #}
 {% block authorBlock %}
      <div class="author_card">
-        <a href="#" class="author_pic"><img src="../../static/news/images/user_pic.png" alt="author_pic"></a>
+        <a href="#" class="author_pic">
+            {% if data.user_info.avatar_url %}
+                <img src="{{data.user_info.avatar_url}}" alt="author_pic">
+            {% else %}
+                <img src="../../static/news/images/user_pic.png" alt="author_pic">
+            {% endif %}
+        </a>
         <a href="#" class="author_name">张大山</a>
         <div class="author_resume">张大山的简介,张大山</div>
         <div class="writings"><span>总篇数</span><b>23</b></div>

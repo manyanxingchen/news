@@ -1,9 +1,10 @@
 #导入蓝图
-from flask import render_template, redirect, g, request, jsonify
+from flask import render_template, redirect, g, request, jsonify, current_app
 
 from . import profile_blue
+from ... import constants
 from ...utils.commons import user_login_data
-
+from ...utils.image_storage import image_storage
 
 from ...utils.response_code import RET
 #对用户基本资料页面进行渲染
@@ -47,10 +48,26 @@ def pic_info():
         #2.get请求携带用户信息渲染页面
         return render_template('new1/user_pic_info.html',user_info = g.user.to_dict())
     #3.post请求 获取参数
+    # print(request)
+    # return "hhaha"   #---此处打断点测试request+args/json。。。。
+    #获取图片参数
+    avatar = request.files.get('avatar')
     #4.校验参数
+    if not avatar:
+        return jsonify(errno = RET.NODATA,errmsg = '图片参数为空')
+    #5.读取图片为二进制
+    try:
+        image_name = image_storage(avatar.read())
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.THIRDERR,errmsg = '七牛云异常')
     #5.修改数据库
+    g.user.avatar_url = image_name
     #6.返回响应
-    return
+    data={
+        'avatar_url':constants.QINIU_DOMIN_PREFIX + image_name
+    }
+    return jsonify(errno = RET.OK,errmsg = '图片上传成功',data = data)
 #密码修改
 #1.请求路径 /user/pass_info
 #2.请求方式  GET  POST
