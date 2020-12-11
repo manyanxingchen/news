@@ -94,21 +94,25 @@ def register():
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno = RET.DBERR,errmsg = '删除短信验证码失败')
-#7.创建用户
-    user = User()
+    mobile_user = User.query.filter(User.mobile == mobile).first()
+    if not mobile_user:
+    #7.创建用户
+        user = User()
 
-#8.设置用户对象属性
-    user.nick_name = mobile
-    user.password= password
-    user.mobile = mobile
-    user.signature = '这个用户很懒，没有签名'
-#9.保存用户到数据库
-    try:
-        db.session.add(user)
-        db.session.commit()
-    except Exception as e:
-        current_app.logger.error(e)
-        return jsonify(errno = RET.DBERR,errmsg = '用户注册失败')
+    #8.设置用户对象属性
+        user.nick_name = mobile
+        user.password = password
+        user.mobile = mobile
+        user.signature = '这个用户很懒，没有签名'
+    #9.保存用户到数据库
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except Exception as e:
+            current_app.logger.error(e)
+            return jsonify(errno = RET.DBERR,errmsg = '用户注册失败')
+    else:
+        return jsonify(errno = RET.DBERR,errmsg = '该用户已经注册过了')
 #10.返回注册成功
     return jsonify(errno =RET.OK,errmsg = '注册成功')
 # 获取短信验证码

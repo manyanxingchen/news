@@ -3,9 +3,68 @@ from flask import current_app, jsonify, abort, render_template, session, g, requ
 
 from . import news_blue
 from ... import db
-from ...models import News, User, Comment
+from ...models import News, User, Comment, CommentLike
 from ...utils.commons import user_login_data
 from ...utils.response_code import RET
+#用户点赞、取消点赞
+# 1.请求路径：/news/comment_like
+# 2.请求方式  post/get
+# 3.请求参数  comment_id ,action,g.user
+# 4.返回值 errno errmsg
+@news_blue.route('/comment_like',methods = ['POST'])
+@user_login_data
+def comment_like():
+    #1.判断用户是否登录
+    if not g.user:
+        return jsonify(errno = RET.NODATA,errmsg = '用户还未登录')
+    #2.获取参数
+    comment_id = request.json.get('comment_id')
+    action = request.json.get('action')
+    #3.判断参数是否为空
+    if not all([comment_id,action]):
+        return jsonify(errno = RET.PARAMERR,errmsg = '参数不能为空')
+    #4.点赞参数类型校验
+    if not action in ['add','remove']:
+        return jsonify(errno = RET.DATAERR,errmsg = '参数错误')
+    #5.依据评论编号查询评论对象，判断评论是否存在
+    try:
+        comment = Comment.query.get(comment_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '评论获取失败')
+    #5.判断评论是否存在
+    if not comment: return jsonify(errno = RET.NODATA,errmsg = '该评论不存在')
+    #6.判断用户操作类型：点赞、取消点赞
+    try:
+        if action=='add':
+        # 判断是否点过赞
+            comment_like = CommentLike.query.filter(CommentLike.comment_id == comment_id,CommentLike.user_id == g.user.id).first()
+            if not comment_like:
+                #创建点赞对象
+                comment_like = CommentLike()
+                comment_like.comment_id = comment_id
+                comment_like.user_id = g.user.id
+                #添加到数据库
+                db.session.add(comment_like)
+                comment.like_count +=1
+                db.session.commit()
+            else:
+                return jsonify(errno=RET.PARAMERR, errmsg='该评论您已点过赞')
+        else:
+                # 判断是否点过赞
+            comment_like = CommentLike.query.filter(CommentLike.comment_id == comment_id,
+                                                        CommentLike.user_id == g.user.id).first()
+            if comment_like:
+                    #取消点赞
+                db.session.delete(comment_like)
+                if comment.like_count > 0:
+                    comment.like_count -= 1
+                db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '操作失败')
+    #7.返回响应
+    return jsonify(errno = RET.OK,errmsg = '操作成功')
 #用户评论
 #1.请求路径：/news/comment
 #2.请求方式：post
@@ -126,6 +185,20 @@ def news_detail(news_id):
     #         is_collected =True
     #将新闻转换为字典类型
     #显示评论数据
+    #获取用户点赞信息
+    #判断用户是否登录
+    commnent_likes = []
+    try:
+        if g.user:
+            #依据用户id取出与用户id相关的信息
+            commnent_likes = CommentLike.query.filter(g.user.id == CommentLike.user_id).all()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '点赞获取失败')
+    #取出点赞的新闻id列表
+    user_comment_likes_list = []
+    for comment_like in commnent_likes:
+        user_comment_likes_list.append(comment_like.comment_id)
     #1.查询评论数据
     try:
         comments = Comment.query.filter(Comment.news_id == news_id).order_by(Comment.create_time.desc()).all()
@@ -134,7 +207,12 @@ def news_detail(news_id):
         return jsonify(errno = RET.DBERR,errmsg = '新闻评论数据获取失败')
     comments_list= []
     for comment in comments:
-        comments_list.append(comment.to_dict())
+        comms_dict =  comment.to_dict()
+        # 判断用户是否对评论点过赞
+        comms_dict['is_like'] = False
+        if g.user and comment.id in user_comment_likes_list:
+            comms_dict['is_like'] = True
+        comments_list.append(comms_dict)
     data = {
         'news_info':news.to_dict(),
         #返回用户数据
