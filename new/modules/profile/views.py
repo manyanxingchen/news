@@ -51,6 +51,30 @@ def pic_info():
     #5.修改数据库
     #6.返回响应
     return
+#密码修改
+#1.请求路径 /user/pass_info
+#2.请求方式  GET  POST
+#3.请求参数  post请求  new_password  old_password
+#4.返回响应  errno errmsg
+@profile_blue.route('/pass_info',methods = ['GET','POST'])
+@user_login_data
+def pass_info():
+    #1.判断请求方式
+    if request.method == 'GET':
+        #2.如果为get请求，携带用户数据渲染页面
+        return render_template('new1/user_pass_info.html')
+    #3.如果为post请求，获取参数
+    new_password = request.json.get('new_password')
+    old_password = request.json.get('old_password')
+    #4.参数校验是否为空
+    if not all([new_password,old_password]):
+        return jsonify(errno = RET.NODATA,errmsg = '参数为空')
+    #5.校验旧密码是否正确
+    if not g.user.check_password(old_password):
+        return jsonify(errno = RET.PWDERR,errmsg = '旧密码错误')
+    #6.修改密码
+    g.user.password = new_password
+    return jsonify(errno = RET.OK,errmsg = '密码修改成功')
 @profile_blue.route('/user_index')
 @user_login_data
 def user_index():
