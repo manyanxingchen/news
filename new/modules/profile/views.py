@@ -3,6 +3,7 @@ from flask import render_template, redirect, g, request, jsonify, current_app
 
 from . import profile_blue
 from ... import constants
+from ...models import News
 from ...utils.commons import user_login_data
 from ...utils.image_storage import image_storage
 
@@ -92,6 +93,43 @@ def pass_info():
     #6.修改密码
     g.user.password = new_password
     return jsonify(errno = RET.OK,errmsg = '密码修改成功')
+#对用户收藏内容页面进行渲染
+# 请求方式  get
+# 请求路径  /user/collection.html
+# 请求参数  page_number
+# 请求响应  errno errmsg
+@profile_blue.route('/collection')
+@user_login_data
+def collection():
+    #1.获取参数
+    page = request.args.get('p','1')
+    #2.转换参数类型
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DATAERR,errmsg = '数据类型转换错误')
+    #3.分页查询收藏新闻
+    try:
+        paginate = g.user.collection_news.order_by(News.create_time.desc()).paginate(page,3,False)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '查询分页新闻失败')
+    #4.获取分页的总页数，当前页以及显示条数
+    totalPage = paginate.pages
+    currentPage = paginate.page
+    items = paginate.items
+    #5.将对象列表转换成字典
+    news_list=[]
+    for new in items:
+        news_list.append(new.to_dict())
+    #6.拼接数据返回
+    data = {
+        'totalPage':totalPage,
+        'currentPage':currentPage,
+        'news_list': news_list
+    }
+    return render_template('new1/user_collection.html',data = data)
 @profile_blue.route('/user_index')
 @user_login_data
 def user_index():
