@@ -306,7 +306,7 @@ $(function(){
 
         // 关注当前新闻作者
     $(".focus").click(function () {
-        /*
+
         var user_id = $(this).attr('data-userid')
         var params = {
             "action": "follow",
@@ -337,12 +337,11 @@ $(function(){
                 }
             }
         })
-        */
     })
 
     // 取消关注当前新闻作者
     $(".focused").click(function () {
-        /*
+
         var user_id = $(this).attr('data-userid')
         var params = {
             "action": "unfollow",
@@ -373,7 +372,7 @@ $(function(){
                 }
             }
         })
-        */
+
     })
 })
 

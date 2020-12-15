@@ -145,6 +145,44 @@ def news_collect():
         return jsonify(errno = RET.DBERR,errmsg = '惭怍失败')
     #7.返回响应
     return jsonify(errno = RET.OK,errmsg = '操作成功')
+#关注或者取消关注
+#1.请求路径  news/news_followed
+#2.请求方式   post
+#3.请求参数   操作方式  作者
+#4.返回响应    errno errmsg
+@news_blue.route('/followed_user',methods = ['POST'])
+@user_login_data
+def followed_user():
+    #1.获取参数
+    author_id = request.json.get('user_id')
+    action = request.json.get('action')
+    #2.参数校验为空
+    if not all([action,author_id]):
+        return jsonify(errno = RET.NODATA,errmsg = '参数不能为空')
+    #3.判断参数是否正确
+    if not action in ['follow','unfollow']:
+        return jsonify(errno = RET.DATAERR,errmsg = '参数错误')
+    #4.判断作者是否存在
+    try:
+        author = User.query.get(author_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '作者查询失败')
+    if not author:
+        return jsonify(errno = RET.NODATA,errmsg = '作者不存在')
+    #5.如果是关注：判断用户是否在作者粉丝中
+    try:
+        if action == 'follow':
+            if not g.user in author.followers:
+                author.followers.append(g.user)
+        #6.如果是取消关注
+        else:
+            author.followers.remove(g.user)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '操作失败')
+    #7.返回响应
+    return jsonify(errno = RET.OK, errmsg = '操作成功')
 @news_blue.route('/<int:news_id>')
 @user_login_data
 def news_detail(news_id):
@@ -179,10 +217,10 @@ def news_detail(news_id):
     for new in click_news:
         click_news_list.append(new.to_dict())
     #判断新闻是否被用户收藏
-    # is_collected = False
-    # if g.user:
-    #     if news in g.user.collection_news:
-    #         is_collected =True
+    is_collected = False
+    if g.user:
+        if news in g.user.collection_news:
+            is_collected =True
     #将新闻转换为字典类型
     #显示评论数据
     #获取用户点赞信息
@@ -225,7 +263,8 @@ def news_detail(news_id):
         #返回详情页热点新闻
         'news_list':click_news_list,
         'comments':comments_list,
-        'is_followers':is_followers
+        'is_followers':is_followers,
+        'is_collected':is_collected
     }
     return render_template('new1/detail.html',data = data)
 
