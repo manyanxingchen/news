@@ -99,7 +99,7 @@ class News(BaseModel, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)  # 新闻编号
     title = db.Column(db.String(256), nullable=False)  # 新闻标题
-    source = db.Column(db.String(64), nullable=False)  # 新闻来源
+    source = db.Column(db.String(64), nullable=False)  # 新闻来源 谁发布的
     digest = db.Column(db.String(512), nullable=False)  # 新闻摘要
     content = db.Column(db.Text, nullable=False)  # 新闻内容
     clicks = db.Column(db.Integer, default=0)  # 浏览量
