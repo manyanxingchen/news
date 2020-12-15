@@ -213,13 +213,19 @@ def news_detail(news_id):
         if g.user and comment.id in user_comment_likes_list:
             comms_dict['is_like'] = True
         comments_list.append(comms_dict)
+    is_followers = False
+    #用户关注
+    if g.user and news.user:
+        if g.user in news.user.followers:
+            is_followers = True
     data = {
         'news_info':news.to_dict(),
         #返回用户数据
         'user_info':g.user.to_dict() if g.user else '',
         #返回详情页热点新闻
         'news_list':click_news_list,
-        'comments':comments_list
+        'comments':comments_list,
+        'is_followers':is_followers
     }
     return render_template('new1/detail.html',data = data)
 
