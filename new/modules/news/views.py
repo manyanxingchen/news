@@ -153,6 +153,9 @@ def news_collect():
 @news_blue.route('/followed_user',methods = ['POST'])
 @user_login_data
 def followed_user():
+    #校验是否登录
+    if not g.user:
+        return jsonify(errno = RET.SESSIONERR,errmsg = '用户未登录')
     #1.获取参数
     author_id = request.json.get('user_id')
     action = request.json.get('action')

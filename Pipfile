@@ -11,6 +11,8 @@ flask-session = "*"
 flask-wtf = "*"
 flask-migrate = "*"
 flask-script = "*"
+qiniu = "*"
+certifi = "*"
 
 [dev-packages]
 
