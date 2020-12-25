@@ -119,7 +119,14 @@ def index():
     # current_app.logger.info('输入详细信息2')
     # current_app.logger.warning('输入警告信息2')
     # current_app.logger.error('输入错误信息2')
-
+#捕获所有404错误重定向显示
+@index_blue.route('/404')
+@user_login_data
+def page_not_found():
+    data={
+        'user_info':g.user.to_dict() if g.user else ''
+    }
+    return render_template('admin1/404.html',data=data)
 #处理网站logo
 @index_blue.route('/favicon.ico')
 def get_web_logo():
