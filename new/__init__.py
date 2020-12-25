@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from redis import StrictRedis
 from flask_session import Session
@@ -54,6 +54,10 @@ def create_app(config_name):
         csrf_token  = generate_csrf()
         resp.set_cookie('csrf_token',csrf_token)
         return resp
+    #捕捉异常404错误渲染页面
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('admin1/404.html')
     #强自定义的过滤器加载到系统默认的过滤器中
     app.add_template_filter(hot_news_filter,'my_filter')
     print(app.url_map)

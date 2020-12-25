@@ -17,7 +17,7 @@ manager.add_command('db',MigrateCommand)
 #为了使得创建管理员用户的保密，只有创建人可知需要在终端中调用方法，传递相应参数
 @manager.option('-u', '--username', dest='username')
 @manager.option('-p', '--password', dest='password')
-#创建管理员用户
+#创建管理员用户--使用终端创建管理员用户  python manager.py create_superuser -u username -p password
 def create_superuser(username,password):
     #1.创建管理员用户
     admin = User()
