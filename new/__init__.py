@@ -45,6 +45,9 @@ def create_app(config_name):
     #用户信息显示蓝图
     from new.modules.profile import profile_blue
     app.register_blueprint(profile_blue)
+    #管理员蓝图
+    from new.modules.admin import admin_blue
+    app.register_blueprint(admin_blue)
     #使用请求钩子拦截所有的请求
     @app.after_request
     def after_request(resp):
