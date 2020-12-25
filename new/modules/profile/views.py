@@ -2,12 +2,51 @@
 from flask import render_template, redirect, g, request, jsonify, current_app
 from . import profile_blue
 from ... import constants, db
-from ...models import News, Category
+from ...models import News, Category, User
 from ...utils.commons import user_login_data
 from ...utils.image_storage import image_storage
 import ssl
 from ...utils.response_code import RET
 ssl._create_default_https_context = ssl._create_unverified_context
+#对用户基本资料页面进行渲染
+# 请求方式  get
+# 请求路径  /user/user_follow.html
+# 请求参数  get  p
+# 请求响应  errno errmsg
+@profile_blue.route('/user_follow',methods=['GET'])
+@user_login_data
+def user_follow():
+    #1.获取参数
+    p = request.args.get('p','1')
+    #2.参数类型转换
+    try:
+        p = int(p)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DATAERR,errmsg = '参数类型转换失败')
+    #3.参数为空校验
+    if not p:
+        return jsonify(RET.NODATA,errmsg = '页数参数不能为空')
+    #4.进行分页查询
+    try:
+        paginate = g.user.followed.paginate(p,2,False)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg ='分页查询失败')
+    #5.获取分页的总页数，当前页以及显示条数
+    totalPage = paginate.pages
+    currentPage = paginate.page
+    items = paginate.items
+    #5.数据转换为字典
+    authors_list = []
+    for aurthor in items:
+        authors_list.append(aurthor.to_dict())
+    data = {
+        'currentPage':currentPage,
+        'totalPage':totalPage,
+        'authors_list':authors_list
+    }
+    return render_template('new1/user_follow.html',data = data)
 #对用户基本资料页面进行渲染
 # 请求方式  post、get
 # 请求路径  /user/base_info.html
