@@ -25,6 +25,9 @@ def index():
 def admin_login():
     #1.判断请求方式
     if request.method == 'GET':
+        #判断用户是否登录
+        if session.get('is_admin'):
+            return redirect('/admin1/index')
         # 2.get请求直接渲染页面
         return render_template('admin1/login.html')
     #3.post请求 获取参数

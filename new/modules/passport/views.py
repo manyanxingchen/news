@@ -16,6 +16,7 @@ from new.utils.response_code import RET
 def logout():
     #1.清空session
     session.pop('user_id',None)
+    session.pop('is_admin',None)
     #2.返回响应
     return jsonify(errno = RET.OK,errmsg = '退出成功')
 #登录验证
