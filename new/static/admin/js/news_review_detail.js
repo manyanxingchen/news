@@ -24,9 +24,9 @@ $(function(){
             "news_id": news_id,
             "reason": reason
         }
-        /*
+
         $.ajax({
-            url: "/admin/news_review_detail",
+            url: "/admin1/news_review_detail",
             type: "post",
             contentType: "application/json",
             headers: {
@@ -42,7 +42,7 @@ $(function(){
                 }
             }
         })
-        */
+
     })
 })
 

@@ -29,10 +29,10 @@ def newlist():
 
     #3.分页查询
     try:
-        if cid == '1':
-            paginate = News.query.filter().order_by(News.create_time.desc()).paginate(page,per_page,False)
-        else:
-            paginate = News.query.filter(News.category_id==cid).order_by(News.create_time.desc()).paginate(page,per_page,False)
+        # if cid == '1':
+        #     paginate = News.query.filter().order_by(News.create_time.desc()).paginate(page,per_page,False)
+        # else:
+        #     paginate = News.query.filter(News.category_id==cid).order_by(News.create_time.desc()).paginate(page,per_page,False)
         # """
         #方式2.
         # filters = text(" ")
@@ -40,10 +40,10 @@ def newlist():
         #     filters = (News.category_id == cid)
         # paginate = News.query.filter(filters).order_by(News.create_time.desc()).paginate(page, per_page, False)
         # 方式3.
-        # filters = []
-        # if cid != "1":
-        #     filters.append(News.category_id == cid)
-        # paginate = News.query.filter(*filters).order_by(News.create_time.desc()).paginate(page, per_page, False)
+        filters = [News.status==0]
+        if cid != "1":
+            filters.append(News.category_id == cid)
+        paginate = News.query.filter(*filters).order_by(News.create_time.desc()).paginate(page, per_page, False)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno = RET.DBERR,errmsg = '分页新闻获取失败')
